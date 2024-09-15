@@ -2,6 +2,7 @@ import logging
 import os
 import pickle
 import re
+import json
 from typing import TypedDict
 
 from unityparser import UnityDocument
@@ -25,7 +26,7 @@ def load_cache(name: str) -> object:
             logger.info('Successfully loaded value from: %s' % name)
             return value
     except:
-        logger.error('Failed to loaded value from: %s' % name)
+        logger.error('Failed to load value from: %s' % name)
 
 
 def set_cache(name: str, value) -> None:
@@ -64,6 +65,14 @@ def get_enum(path) -> dict:
             enum_name = match.group(1)
             enum_value = match.group(2)
             result[int(enum_value)] = enum_name
+
+    return result
+
+def get_json(path) -> dict:
+    result = {}
+    # Load json file and return the result
+    with open(os.path.join(path), 'r', encoding='utf-8-sig') as file:
+        result = json.load(file)
 
     return result
 

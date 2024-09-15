@@ -177,11 +177,11 @@ def get_item_translations():
 
 
 def get_object_ids() -> dict:
-    enum = util.get_enum('dump/CoreKeeper/ExportedProject/Assets/MonoScript/Pug.Base/ObjectID.cs')
+    json = util.get_json('dump/CoreKeeper/ExportedProject/Assets/StreamingAssets/Conf/ID/ObjectID.json')
     # Edges cases for AmberLarva2 and GiantMushroom2
-    enum[5502] = 'GiantMushroom'
-    enum[5503] = 'AmberLarva'
-    return enum
+    json[5502] = 'GiantMushroom'
+    json[5503] = 'AmberLarva'
+    return json
 
 
 def get_set_bonuses():
