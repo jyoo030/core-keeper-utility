@@ -2,14 +2,16 @@
 
 import json
 import os
-
+import logging
 from unityparser import UnityDocument
 
 import util
 
 
+logger = logging.getLogger('conditions')
+
 def get_condition_ids() -> dict:
-    return util.get_enum('dump/CoreKeeper/ExportedProject/Assets/MonoScript/Pug.Base/ConditionID.cs')
+    return util.get_json('json/ConditionID_updated.json')
 
 
 def effect_id_needs_to_be_divided(effect_id) -> bool:
@@ -38,8 +40,11 @@ def condition_id_needs_to_be_divided(condition_id, effect_id) -> bool:
 
 
 if __name__ == '__main__':
+    logging.basicConfig()
+    logger = logging.getLogger(__name__)
+
     translations = util.get_translations()
-    condition_ids_enum = {v: k for k, v in get_condition_ids().items()}
+    condition_ids_enum = get_condition_ids()
     condition_id_to_translation = {}
 
     # Find all the translations that start with 'Conditions/'
@@ -50,8 +55,11 @@ if __name__ == '__main__':
         translation_value = translation['value']
         if term.startswith('Conditions/'):
             _, condition_name = term.split('/')
-            condition_id = condition_ids_enum[condition_name]
-            condition_id_to_translation[condition_id] = translation_value
+            try:
+                condition_id = condition_ids_enum[condition_name]
+                condition_id_to_translation[condition_id] = translation_value
+            except KeyError:
+                logger.warning(f"Condition {condition_name} not found in condition_ids_enum")
 
     condition_table_doc = UnityDocument.load_yaml(
         'dump/CoreKeeper/ExportedProject/Assets/Resources/ConditionsTable.asset'
@@ -69,10 +77,13 @@ if __name__ == '__main__':
                 continue
 
             id_to_use_same_desc = condition['useSameDescAsId']
-            if id_to_use_same_desc != 0:
-                condition_description = condition_id_to_translation[id_to_use_same_desc]
-            else:
-                condition_description = condition_id_to_translation[condition_id]
+            try:
+                if id_to_use_same_desc != 0:
+                    condition_description = condition_id_to_translation[id_to_use_same_desc]
+                else:
+                    condition_description = condition_id_to_translation[condition_id]
+            except KeyError:
+                logger.warning(f"Condition {condition_id} not found in condition_id_to_translation")
 
             # We will use result like in chmod with the binary numbers
             # x2 x1
