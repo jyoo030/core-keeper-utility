@@ -156,6 +156,68 @@ ITEM_BLACKLIST = [
     # 0.5.1.2
     9229, # CupidArrowProjectile
     # 0.5.2.1
+    9251,  # GravityProjectile
+    9205,  # BunnyPoisonDartProjectile
+    9318,  # HydraBossSpawnNilipedeMortarProjectile
+    6513,  # EventTerminal
+    3158,  # CoreBossBeam
+    9246,  # SlimeProjectile
+    9248,  # ScarletBoltProjectile
+    9314,  # HydraBossStalactiteMortarProjectile
+    9263,  # BasicStaffProjectile
+    9313,  # HydraBossBeamMortarProjectile
+    5637,  # HydraBossStalactite
+    5530,  # DiggingSpot
+    9311,  # FallingRockMortarProjectile
+    3166,  # AmoebaGiantSegmentTail
+    8017,  # RootPlant
+    8230,  # CoreBossScanner
+    9316,  # HydraBossIceShardMortarProjectile
+    3154,  # WormSegmentTail
+    9317,  # HydraBossLavaMortarProjectile
+    5552,  # PassageDestructibleDebris
+    9254,  # RazorFlakeShardProjectile
+    9265,  # DeflectProjectile
+    5984,  # AmoebaBomb
+    9260,  # CoreBossElectricProjectile
+    5948,  # TowerShell
+    2055,  # HydraBossSeaSoulOrb
+    235,  # ImmunityTile
+    9258,  # VoidOrbGunProjectile
+    5532,  # DiggingSpotNature
+    9315,  # HydraBossShockwaveMortarProjectile
+    9259,  # CoreBossScarabProjectile
+    9256,  # IceShardProjectile
+    5551,  # CrystalDestructibleDebris
+    9261,  # BatMinionProjectile
+    3164,  # AmoebaWormSegmentTail
+    9255,  # ElectricProjectile
+    2054,  # HydraBossNatureSoulOrb
+    437,  # GroundPassageBlock
+    5534,  # DiggingSpotDesert
+    3167,  # AmoebaGiantSegmentBody
+    9250,  # OrbitalTurretProjectile
+    436,  # WateredMeadowGround
+    433,  # DugUpCrystalGround
+    3162,  # CoreBossVoidImmuneZone
+    434,  # WateredCrystalGround
+    9264,  # SunStaffProjectile
+    3161,  # NatureWormSegmentTail
+    5978,  # PassageGroundDecoration
+    9262,  # ArcaneStaffProjectile
+    5851,  # HydraBossIceShard
+    5533,  # DiggingSpotSea
+    9253,  # RazorFlakeProjectile
+    5535,  # DiggingSpotLava
+    9249,  # SolariteBoltProjectile
+    3156,  # ClayWormSegmentTail
+    435,  # DugUpMeadowGround
+    9247,  # WoodBoltProjectile
+    9257,  # CoreBossWhirlwindProjectile
+    2056,  # HydraBossDesertSoulOrb
+    9319,  # FireballExplosiveProjectile
+    9252,  # CrystalSpikeTrail
+    
 ]
 
 TEXTURE_WHOLE_IMAGE_BLACKLIST = [

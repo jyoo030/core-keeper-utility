@@ -256,6 +256,17 @@ if __name__ == '__main__':
         object_id = objectinfo['objectID']
         object_name = object_ids[object_id]
 
+        # If there is already an entry with the given object_id we skip it and increment a number so we can later
+        # display how many duplicate entries there were
+        if item_data.get(object_id) is not None:
+            logger.info("Skipping %d due to duplicate entry" % object_id)
+            duplicate_entry_count = duplicate_entries.get(object_id)
+            if duplicate_entry_count is None:
+                duplicate_entries[object_id] = 1
+            else:
+                duplicate_entries[object_id] = duplicate_entry_count + 1
+            continue
+
         # Speical handler for Rare and Epic version of food. They don't have a seperate translation
         if object_name.startswith('Cooked') and (object_name.endswith('Rare') or object_name.endswith('Epic')):
             translation = item_translations.get(object_name[:-4])
@@ -363,16 +374,6 @@ if __name__ == '__main__':
                 logger.warning("Skipping %d due to no image" % object_id)
                 continue
 
-            # If there is already an entry with the given object_id we skip it and increment a number so we can later
-            # display how many duplicate entries there were
-            if item_data.get(object_id) is not None:
-                logger.info("Skipping %d due to duplicate entry" % object_id)
-                duplicate_entry_count = duplicate_entries.get(object_id)
-                if duplicate_entry_count is None:
-                    duplicate_entries[object_id] = 1
-                else:
-                    duplicate_entries[object_id] = duplicate_entry_count + 1
-                continue
 
             item_data[object_id] = single_data
             images.append(cropped_image)
