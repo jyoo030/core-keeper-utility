@@ -201,11 +201,12 @@ def get_sprite_map() -> dict:
     return sprite_map
 
 def get_object_ids() -> dict:
-    json = util.get_json('dump/CoreKeeper/ExportedProject/Assets/StreamingAssets/Conf/ID/ObjectID.json')
+    json = util.get_json('dump/CoreKeeper/ExportedProject/Assets/StreamingAssets/Conf/ID/ObjectID_updated.json')
+    flipped_json = {value: key for key, value in json.items()}
     # Edges cases for AmberLarva2 and GiantMushroom2
-    json[5502] = 'GiantMushroom'
-    json[5503] = 'AmberLarva'
-    return json
+    flipped_json[5502] = 'GiantMushroom'
+    flipped_json[5503] = 'AmberLarva'
+    return flipped_json
 
 
 def get_set_bonuses():
