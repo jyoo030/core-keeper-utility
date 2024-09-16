@@ -180,6 +180,25 @@ def get_item_translations():
 
     return item_translations
 
+def get_sprite_map() -> dict:
+    sprite_map = util.load_cache('sprite_map')
+    if sprite_map is None:
+        sprite_map = {}
+        counter = 0
+        for filepath in iglob(os.path.join('dump/CoreKeeper/ExportedProject/Assets/Sprite/*.meta')):
+            with open(filepath, 'r') as meta_stream:
+                metadata = yaml.safe_load(meta_stream)
+                asset = UnityDocument.load_yaml(filepath[:-5])
+                sprite_map[metadata['guid']] = {
+                    "guid": asset.entry.m_RD["texture"]["guid"],
+                    "rect": asset.entry.m_Rect,
+                    "offset": asset.entry.m_Offset
+                }
+                counter += 1
+                if counter % 1000 == 0:
+                    print("Num processed: ", counter)
+        util.set_cache('sprite_map', sprite_map)
+    return sprite_map
 
 def get_object_ids() -> dict:
     json = util.get_json('dump/CoreKeeper/ExportedProject/Assets/StreamingAssets/Conf/ID/ObjectID.json')
@@ -235,6 +254,7 @@ if __name__ == '__main__':
     item_translations = get_item_translations()
     object_ids = get_object_ids()
     set_bonuses = get_set_bonuses()
+    sprite_map = get_sprite_map()
     item_data = {}
     duplicate_entries = {}
     images: [Image] = []
@@ -293,9 +313,9 @@ if __name__ == '__main__':
                 'isRange': is_range == 1
             }
 
-        # Add damage if there is a 'damage' property
+        # Add cooldown if there is a 'cooldown' property
         cooldown = objectinfo.get('cooldown')
-        if cooldown is not None:
+        if cooldown is not None and isinstance(cooldown, (float, int)):
             single_data['cooldown'] = round(1 / cooldown, 2)
 
         # Add setBonusId if these items belongs to one
@@ -309,14 +329,14 @@ if __name__ == '__main__':
         icon_offset_y = icon_offset['y']
 
         # Get the texture file based on the icon object
-        texture = textures[icon['guid']]
-        # Loop over all the icons of the spritesheet and find the correct one
-        found_image = False
-        cropped_image = None
-        for sprite in texture['metadata']['TextureImporter']['spriteSheet']['sprites']:
-            if sprite['internalID'] == icon['fileID']:
-                found_image = True
-                rect = sprite['rect']
+        texture_data = sprite_map.get(icon['guid'])
+        texture = textures.get(texture_data["guid"])
+        if icon['guid'] != "dfb2d1c46d760934a86611d982e0d1d5":
+            if texture is not None:
+                # Loop over all the icons of the spritesheet and find the correct one
+                cropped_image = None
+
+                rect = texture_data['rect']
                 x = rect['x']
                 y = rect['y']
                 width = rect['width']
@@ -350,33 +370,30 @@ if __name__ == '__main__':
                 area = (cropped_x, cropped_y, cropped_x2, cropped_y2)
                 cropped_image = image.crop(area)
 
-        # Edge case for texture files that are not spritesheets
-        if not found_image and cropped_image is None:
-            if object_id not in blacklist.TEXTURE_WHOLE_IMAGE_BLACKLIST:
-                logger.warning("Edge case: %d. Using whole image" % object_id)
-            found_image = True
-            image = Image.open(texture['filepath'])
-            cropped_image = image.crop((1, 0, 17, 16))
+                # Edge case for texture files that are not spritesheets
+                # if object_id not in blacklist.TEXTURE_WHOLE_IMAGE_BLACKLIST:
 
-        # If we found no image we skip this and don't add anything
-        if not found_image or cropped_image is None:
-            logger.warning("Skipping %d due to no image" % object_id)
-            continue
+                # If we found no image we skip this and don't add anything
+                if cropped_image is None:
+                    logger.warning("Skipping %d due to no image" % object_id)
+                    continue
 
-        # If there is already an entry with the given object_id we skip it and increment a number so we can later
-        # display how many duplicate entries there were
-        if item_data.get(object_id) is not None:
-            logger.info("Skipping %d due to duplicate entry" % object_id)
-            duplicate_entry_count = duplicate_entries.get(object_id)
-            if duplicate_entry_count is None:
-                duplicate_entries[object_id] = 1
+                # If there is already an entry with the given object_id we skip it and increment a number so we can later
+                # display how many duplicate entries there were
+                if item_data.get(object_id) is not None:
+                    logger.info("Skipping %d due to duplicate entry" % object_id)
+                    duplicate_entry_count = duplicate_entries.get(object_id)
+                    if duplicate_entry_count is None:
+                        duplicate_entries[object_id] = 1
+                    else:
+                        duplicate_entries[object_id] = duplicate_entry_count + 1
+                    continue
+
+                item_data[object_id] = single_data
+                images.append(cropped_image)
+                icon_index += 1
             else:
-                duplicate_entries[object_id] = duplicate_entry_count + 1
-            continue
-
-        item_data[object_id] = single_data
-        images.append(cropped_image)
-        icon_index += 1
+                logger.warning("No icon found for %d" % object_id)
 
     os.makedirs('out/item', exist_ok=True)
     # Create spritesheet
