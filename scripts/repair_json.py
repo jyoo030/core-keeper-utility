@@ -24,7 +24,8 @@ def add_commas_to_json(file_path, output_path):
     except IOError as e:
         print(f"Error: An I/O error occurred: {e}")
 
-input_file_path = 'dump/CoreKeeper/ExportedProject/Assets/StreamingAssets/Conf/ID/ObjectID.json'
-output_file_path = 'dump/CoreKeeper/ExportedProject/Assets/StreamingAssets/Conf/ID/ObjectID_updated.json'
+input_file_path = ['dump/CoreKeeper/ExportedProject/Assets/StreamingAssets/Conf/ID/ObjectID.json', 'dump/CoreKeeper/ExportedProject/Assets/StreamingAssets/Conf/ID/ConditionID.json']
+output_file_path = ['json/ObjectID_updated.json', 'json/ConditionID_updated.json']
 
-add_commas_to_json(input_file_path, output_file_path)
+for i in range(len(input_file_path)):
+    add_commas_to_json(input_file_path[i], output_file_path[i])
