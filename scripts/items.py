@@ -215,21 +215,6 @@ def get_set_bonuses():
     mono_behvaiour_set_bonuses = mono_behaviour.setBonuses
     set_bonuses = {}
     for set_bonus in mono_behvaiour_set_bonuses:
-        pieces = []
-        # 'avaiablePices' is a string which contains multiple hex strings. These are 8 characters long
-        # Example for avaiablePices: 382100009c21000000220000
-        # Example for object_id_hex: ['38210000', '9c210000', '00220000']
-        object_id_hex = textwrap.wrap(str(set_bonus['availablePieces']), 8)
-        # We can't parse the hex string as it is, we need to format before that
-        for hex_string in object_id_hex:
-            # Example for hex_string: 38210000
-            # Example for normalized_hex_string 00002138
-            # So we need to split hex so we get 4 elements of the length 2 and reverse the order
-            hex_list = textwrap.wrap(hex_string, 2)
-            hex_list.reverse()
-            object_id = int("0x%s" % ''.join(hex_list), 0)
-            pieces.append(object_id)
-
         # Remove the duration as it is constant to 0
         set_bonus_datas = set_bonus['setBonusDatas']
         for set_bonus_data in set_bonus_datas:
@@ -240,7 +225,7 @@ def get_set_bonuses():
             'id': set_bonus_id,
             'rarity': set_bonus['rarity'],
             'data': set_bonus_datas,
-            'pieces': pieces
+            'pieces': set_bonus['availablePieces']
         }
 
     return set_bonuses
