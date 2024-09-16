@@ -317,69 +317,68 @@ if __name__ == '__main__':
         # Get the texture file based on the icon object
         texture_data = sprite_map.get(icon['guid'])
         texture = textures.get(texture_data["guid"])
-        if icon['guid'] != "dfb2d1c46d760934a86611d982e0d1d5":
-            if texture is not None:
-                # Loop over all the icons of the spritesheet and find the correct one
-                cropped_image = None
+        if texture is not None:
+            # Loop over all the icons of the spritesheet and find the correct one
+            cropped_image = None
 
-                rect = texture_data['rect']
-                x = rect['x']
-                y = rect['y']
-                width = rect['width']
-                height = rect['height']
-                sprite_pixels_to_units = texture['metadata']['TextureImporter']['spritePixelsToUnits']
-                offset_x = icon_offset_x * sprite_pixels_to_units
-                offset_y = icon_offset_y * sprite_pixels_to_units
+            rect = texture_data['rect']
+            x = rect['x']
+            y = rect['y']
+            width = rect['width']
+            height = rect['height']
+            sprite_pixels_to_units = texture['metadata']['TextureImporter']['spritePixelsToUnits']
+            offset_x = icon_offset_x * sprite_pixels_to_units
+            offset_y = icon_offset_y * sprite_pixels_to_units
 
-                # The coordinate system of the games starts from bottem left,
-                # so we have to reverse the y
-                # The spritesheet is perfectly uniform with 16x16 icons
-                # The tool sprites (which is also used for animation) on the other hand are not
-                # We have found x / y values of 40, 50, ...
-                # But the width is still 16 pixel of that icon
-                # We just have to crop it right
-                # We need to width - 16 and split that in 2
-                # For example: 40 - 16 = 24. We make the crop 12 pixel in both directions smaller
-                # This would mean for cropped_x to add 12 and cropped_x2 to remove 12
-                # ------------------- cropped_y to add 12 and cropped_y2 to remove 12
-                # For perfect values of 16 the result will be 0 and the crop won't be effected
-                # For some objectInfo the iconOffset is set to something other than 0
-                # We need to apply this offset to center the icon. Just multiply the offset with the pixel ratio
-                # and apply it on
-                image = Image.open(texture['filepath'])
-                diff = (width - 16) / 2
-                cropped_x = x + diff
-                cropped_y = image.height - y - width + diff + offset_y
-                cropped_x2 = x + width - diff + offset_x
-                cropped_y2 = image.height - y - diff
+            # The coordinate system of the games starts from bottem left,
+            # so we have to reverse the y
+            # The spritesheet is perfectly uniform with 16x16 icons
+            # The tool sprites (which is also used for animation) on the other hand are not
+            # We have found x / y values of 40, 50, ...
+            # But the width is still 16 pixel of that icon
+            # We just have to crop it right
+            # We need to width - 16 and split that in 2
+            # For example: 40 - 16 = 24. We make the crop 12 pixel in both directions smaller
+            # This would mean for cropped_x to add 12 and cropped_x2 to remove 12
+            # ------------------- cropped_y to add 12 and cropped_y2 to remove 12
+            # For perfect values of 16 the result will be 0 and the crop won't be effected
+            # For some objectInfo the iconOffset is set to something other than 0
+            # We need to apply this offset to center the icon. Just multiply the offset with the pixel ratio
+            # and apply it on
+            image = Image.open(texture['filepath'])
+            diff = (width - 16) / 2
+            cropped_x = x + diff
+            cropped_y = image.height - y - width + diff + offset_y
+            cropped_x2 = x + width - diff + offset_x
+            cropped_y2 = image.height - y - diff
 
-                area = (cropped_x, cropped_y, cropped_x2, cropped_y2)
-                cropped_image = image.crop(area)
+            area = (cropped_x, cropped_y, cropped_x2, cropped_y2)
+            cropped_image = image.crop(area)
 
-                # Edge case for texture files that are not spritesheets
-                # if object_id not in blacklist.TEXTURE_WHOLE_IMAGE_BLACKLIST:
+            # Edge case for texture files that are not spritesheets
+            # if object_id not in blacklist.TEXTURE_WHOLE_IMAGE_BLACKLIST:
 
-                # If we found no image we skip this and don't add anything
-                if cropped_image is None:
-                    logger.warning("Skipping %d due to no image" % object_id)
-                    continue
+            # If we found no image we skip this and don't add anything
+            if cropped_image is None:
+                logger.warning("Skipping %d due to no image" % object_id)
+                continue
 
-                # If there is already an entry with the given object_id we skip it and increment a number so we can later
-                # display how many duplicate entries there were
-                if item_data.get(object_id) is not None:
-                    logger.info("Skipping %d due to duplicate entry" % object_id)
-                    duplicate_entry_count = duplicate_entries.get(object_id)
-                    if duplicate_entry_count is None:
-                        duplicate_entries[object_id] = 1
-                    else:
-                        duplicate_entries[object_id] = duplicate_entry_count + 1
-                    continue
+            # If there is already an entry with the given object_id we skip it and increment a number so we can later
+            # display how many duplicate entries there were
+            if item_data.get(object_id) is not None:
+                logger.info("Skipping %d due to duplicate entry" % object_id)
+                duplicate_entry_count = duplicate_entries.get(object_id)
+                if duplicate_entry_count is None:
+                    duplicate_entries[object_id] = 1
+                else:
+                    duplicate_entries[object_id] = duplicate_entry_count + 1
+                continue
 
-                item_data[object_id] = single_data
-                images.append(cropped_image)
-                icon_index += 1
-            else:
-                logger.warning("No icon found for %d" % object_id)
+            item_data[object_id] = single_data
+            images.append(cropped_image)
+            icon_index += 1
+        else:
+            logger.warning("No icon found for %d" % object_id)
 
     os.makedirs('out/item', exist_ok=True)
     # Create spritesheet
