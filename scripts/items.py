@@ -55,7 +55,7 @@ def get_objectinfo_monobehaviour() -> [dict]:
         )
 
     objectinfo_monobehaviour = []
-    # Now we know all the paths to the prefabs, itterate and parse over all items.
+    # Now we know all the paths to the prefabs, iterate and parse over all items.
     # Next filter all the objects out, that we know are not items (Enemy, Projectile, etc.)
     for prefab_path in prefab_paths:
         prefab_doc = UnityDocument.load_yaml(prefab_path)
@@ -99,8 +99,15 @@ def get_objectinfo_monobehaviour() -> [dict]:
 
         monobehaviour_cooldown = prefab_doc.filter(class_names=('MonoBehaviour',), attributes=('cooldown',))
         if len(monobehaviour_cooldown) > 1:
-            logging.warning('Multiple Coolodnw MonoBehaviour found in %s', prefab_path)
-        if len(monobehaviour_cooldown) > 0:
+            logging.warning('Multiple Cooldown MonoBehaviour found in %s', prefab_path)
+            for cooldown in monobehaviour_cooldown:
+                if isinstance(cooldown.cooldown, (float, int)):
+                    prefab_objectinfo['cooldown'] = cooldown.cooldown
+                    logging.warning('Selecting cooldown: %s', cooldown.cooldown)
+                    break
+                else:
+                    logging.warning('Cooldown is not a float or int: %s', cooldown.cooldown)
+        elif len(monobehaviour_cooldown) > 0:
             prefab_objectinfo['cooldown'] = monobehaviour_cooldown[0].cooldown
 
         monobehaviour_turns_into_food = prefab_doc.filter(class_names=('MonoBehaviour',), attributes=('turnsIntoFood',))
@@ -126,7 +133,6 @@ def get_objectinfo_monobehaviour() -> [dict]:
     util.set_cache('objectinfo_monobehaviour', objectinfo_monobehaviour)
     return objectinfo_monobehaviour
 
-
 def get_textures() -> dict:
     textures = util.load_cache('textures')
     if textures is None:
@@ -141,7 +147,6 @@ def get_textures() -> dict:
 
         util.set_cache('textures', textures)
     return textures
-
 
 def get_item_translations():
     translations = get_translations()
